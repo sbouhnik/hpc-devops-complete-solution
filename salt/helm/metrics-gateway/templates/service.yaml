@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: metrics-gateway
+spec:
+  type: {{ .Values.service.type }}
+  selector:
+    app: metrics-gateway
+  ports:
+    - name: http
+      port: {{ .Values.service.port }}
+      targetPort: 8080
+      {{- if .Values.service.nodePort }}
+      nodePort: {{ .Values.service.nodePort }}
+      {{- end }}

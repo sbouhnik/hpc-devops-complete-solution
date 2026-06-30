@@ -1,0 +1,4 @@
+base:
+  '*':
+    - slurm
+    - secrets

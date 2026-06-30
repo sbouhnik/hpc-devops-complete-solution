@@ -1,0 +1,9 @@
+replicaCount: 1
+image:
+  repository: localhost/metrics-gateway                                                                   
+  tag: local
+  pullPolicy: Never
+service:
+  type: NodePort
+  port: 8080
+  nodePort: 30080

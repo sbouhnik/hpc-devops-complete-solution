@@ -1,0 +1,8 @@
+replicaCount: 1
+image:
+  repository: localhost/metrics-gateway                                                                   
+  tag: local
+  pullPolicy: Never
+service:
+  type: ClusterIP
+  port: 8080
