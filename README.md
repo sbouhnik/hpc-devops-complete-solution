@@ -263,3 +263,4 @@ https://grafana.local
 The live Slurm dashboard should show the synthetic CPU, GPU, and memory load
 reported by the scheduled Slurm job.
 # hpc-devops-complete-solution
+"# hpc-devops-complete-solution" 
