@@ -77,13 +77,14 @@ vagrant up builder
 Start the controller and compute nodes:
 
 ```bash
-vagrant up controller compute
+vagrant up controller 
+vagrant up compute
 ```
 
 Accept Salt keys and apply the Salt states:
 
 ```bash
-vagrant ssh controller -c "sudo salt-key -A -y && sudo salt '*' state.highstate"
+vagrant ssh controller -c "sudo salt-key -a compute -y"
 vagrant ssh compute -c "sudo salt-call state.highstate"
 ```
 
@@ -262,5 +263,3 @@ https://grafana.local
 
 The live Slurm dashboard should show the synthetic CPU, GPU, and memory load
 reported by the scheduled Slurm job.
-# hpc-devops-complete-solution
-"# hpc-devops-complete-solution" 

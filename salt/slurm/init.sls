@@ -51,8 +51,8 @@ install_slurm_debs:
         TaskPlugin=task/none
         AccountingStorageType=accounting_storage/slurmdbd
         AccountingStorageHost=controller
-        NodeName={{ node_id }} NodeAddr={{ pillar['cluster'][node_id ~ '_ip'] }} CPUs=6 RealMemory=3000 State=UNKNOWN
-        PartitionName=debug Nodes={{ node_id }} Default=YES MaxTime=INFINITE State=UP
+        NodeName=compute NodeAddr={{ pillar['cluster']['compute_ip'] }} CPUs=6 RealMemory=3000 State=UNKNOWN
+        PartitionName=debug Nodes=compute Default=YES MaxTime=INFINITE State=UP
 
 {% if grains['id'] == 'controller' %}
 /etc/slurm/slurmdbd.conf:
