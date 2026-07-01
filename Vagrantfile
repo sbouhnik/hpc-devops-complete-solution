@@ -88,8 +88,6 @@ EOF
 192.168.56.11 salt
 EOF
       systemctl enable --now salt-minion
-      ssh -o StrictHostKeyChecking=no vagrant@192.168.56.11 "sudo salt-key -a compute -y || true"
-      sudo salt-call state.highstate
       
     SHELL
   end
