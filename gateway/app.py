@@ -1,5 +1,4 @@
 from flask import Flask, Response, request, jsonify
-import sys
 
 app = Flask(__name__)
 metrics = {}
