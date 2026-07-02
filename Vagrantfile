@@ -1,17 +1,39 @@
 Vagrant.configure("2") do |config|
-  config.vm.box = "ubuntu/jammy64"
+#  config.vm.box = "ubuntu/jammy64"
   config.vm.synced_folder "./artifacts", "/vagrant/artifacts"
-  config.vm.provider "virtualbox" do |vb|
-    vb.memory = 5120
-    vb.cpus = 2
-    vb.customize ["modifyvm", :id, "--graphicscontroller", "vmsvga"]
+#  config.vm.provider "virtualbox" do |vb|
+#    vb.memory = 5120
+#    vb.cpus = 2
+#    vb.customize ["modifyvm", :id, "--graphicscontroller", "vmsvga"]
+#  end
+  config.vm.provider "docker" do |d|
+    d.build_dir = "."
+    d.name = "vagrant-ubuntu"
+    d.has_ssh = true
+    d.remains_running = true
+    d.create_args = [
+      "--privileged",
+      "--security-opt", "seccomp=unconfined",
+      "--security-opt", "apparmor=unconfined"
+    ]
+  
   end
 
+  config.ssh.username = "vagrant"
+  config.ssh.password = "vagrant"
+  config.ssh.insert_key = false
+  
   config.vm.define "builder" do |builder|
     builder.vm.hostname = "builder"
     builder.vm.network "private_network", ip: "192.168.56.10"
     builder.vm.synced_folder "./gateway", "/vagrant/gateway"
     builder.vm.provision "shell", path: "builder/bootstrap_builder.sh"
+    builder.trigger.after :provision do |trigger|
+      trigger.info = "Halting builder after provisioning"
+      trigger.run = {
+      inline: "vagrant halt builder"
+      }
+    end
   end
 
   config.vm.define "controller" do |controller|

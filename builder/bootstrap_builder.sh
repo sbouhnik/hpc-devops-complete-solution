@@ -13,6 +13,6 @@ mk-build-deps -i -t "apt-get -y --no-install-recommends" debian/control || true
 debuild -b -uc -us || true
 cp -v /tmp/*.deb /vagrant/artifacts/debs/ || true
 cd /vagrant/gateway
-podman build -t metrics-gateway:local .
+podman build  --isolation=chroot -t metrics-gateway:local .
 podman save metrics-gateway:local -o /vagrant/artifacts/images/metrics-gateway.tar
 shutdown -h now || true
