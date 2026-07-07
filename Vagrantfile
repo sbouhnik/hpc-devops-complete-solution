@@ -6,17 +6,21 @@ Vagrant.configure("2") do |config|
 #    vb.cpus = 2
 #    vb.customize ["modifyvm", :id, "--graphicscontroller", "vmsvga"]
 #  end
+
   config.vm.provider "docker" do |d|
     d.build_dir = "."
-    d.name = "vagrant-ubuntu"
-    d.has_ssh = true
+#    d.name = "controller"
+    d.cmd = ["/sbin/init"]
     d.remains_running = true
+    d.has_ssh = true
+
     d.create_args = [
       "--privileged",
-      "--security-opt", "seccomp=unconfined",
-      "--security-opt", "apparmor=unconfined"
-    ]
-  
+      "--cgroupns=host",
+      "--tmpfs", "/run",
+      "--tmpfs", "/run/lock",
+      "--volume", "/sys/fs/cgroup:/sys/fs/cgroup:rw"
+    ]  
   end
 
   config.ssh.username = "vagrant"
@@ -82,6 +86,7 @@ EOF
   end
 
   config.vm.define "compute" do |compute|
+    compute.vm.network "forwarded_port", guest: 32000, host: 3000 
     compute.vm.hostname = "compute"
     compute.vm.network "private_network", ip: "192.168.56.12"
     compute.vm.provider "virtualbox" do |vb|

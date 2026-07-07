@@ -51,7 +51,7 @@ install_slurm_debs:
         TaskPlugin=task/none
         AccountingStorageType=accounting_storage/slurmdbd
         AccountingStorageHost=controller
-        NodeName=compute NodeAddr={{ pillar['cluster']['compute_ip'] }} CPUs=6 RealMemory=3000 State=UNKNOWN
+        NodeName=compute NodeAddr={{ pillar['cluster']['compute_ip'] }} CPUs=2 Boards=1 SocketsPerBoard=1 CoresPerSocket=1 ThreadsPerCore=2 RealMemory=7818
         PartitionName=debug Nodes=compute Default=YES MaxTime=INFINITE State=UP
 
 {% if grains['id'] == 'controller' %}
@@ -107,10 +107,33 @@ slurmd_spool:
     - group: slurm
     - makedirs: True
 
-slurmd_service:
+dbus:
+  pkg.installed:
+    - name: dbus
   service.running:
-    - name: slurmd
+    - name: dbus
     - enable: True
+
+/etc/slurm/cgroup.conf:
+  file.managed:
+    - user: root
+    - group: root
+    - mode: '0644'
+    - contents: |
+        CgroupPlugin=cgroup/v2
+        IgnoreSystemd=yes
+        ConstrainCores=no
+        ConstrainRAMSpace=no
+        ConstrainDevices=no
+
+slurmd:
+  service.running:
+    - enable: True
+    - require:
+      - service: dbus
+      - file: /etc/slurm/cgroup.conf
     - watch:
+      - file: /etc/slurm/cgroup.conf
       - file: /etc/slurm/slurm.conf
+
 {% endif %}

@@ -1,5 +1,8 @@
 {% set slurm_dashboard_json = salt['cp.get_file_str']('salt://grafana/files/live-slurm-job-load-dashboard.json') %}
 
+include:
+  - k3s
+
 prometheus_values:
   file.managed:
     - name: /tmp/kube-prometheus-values.yaml
@@ -7,11 +10,11 @@ prometheus_values:
         grafana:
           adminUser: {{ pillar['grafana']['admin_user'] }}
           adminPassword: {{ pillar['grafana']['admin_password'] }}
-          ingress:
-            enabled: true
-            ingressClassName: traefik
-            hosts:
-              - grafana.local
+          service:
+            type: NodePort
+            port: 80
+            targetPort: 3000
+            nodePort: 32000
           dashboardProviders:
             dashboardproviders.yaml:
               apiVersion: 1

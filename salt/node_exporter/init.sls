@@ -1,3 +1,23 @@
+/etc/containers:
+  file.directory:
+    - user: root
+    - group: root
+    - mode: '0755'
+    - makedirs: True
+
+/etc/containers/containers.conf:
+  file.managed:
+    - user: root
+    - group: root
+    - mode: '0644'
+    - require:
+      - file: /etc/containers
+    - contents: |
+        [engine]
+        cgroup_manager = "cgroupfs"
+        events_logger = "file"
+        runtime = "crun"
+
 node_exporter_container:
   cmd.run:
     - name: |
@@ -6,3 +26,5 @@ node_exporter_container:
     - unless: podman container exists node-exporter
     - require:
       - pkg: podman
+      - file: /etc/containers/containers.conf
+
