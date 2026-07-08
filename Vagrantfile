@@ -1,15 +1,8 @@
 Vagrant.configure("2") do |config|
-#  config.vm.box = "ubuntu/jammy64"
   config.vm.synced_folder "./artifacts", "/vagrant/artifacts"
-#  config.vm.provider "virtualbox" do |vb|
-#    vb.memory = 5120
-#    vb.cpus = 2
-#    vb.customize ["modifyvm", :id, "--graphicscontroller", "vmsvga"]
-#  end
 
   config.vm.provider "docker" do |d|
     d.build_dir = "."
-#    d.name = "controller"
     d.cmd = ["/sbin/init"]
     d.remains_running = true
     d.has_ssh = true
@@ -89,9 +82,6 @@ EOF
     compute.vm.network "forwarded_port", guest: 32000, host: 3000 
     compute.vm.hostname = "compute"
     compute.vm.network "private_network", ip: "192.168.56.12"
-    compute.vm.provider "virtualbox" do |vb|
-      vb.cpus = 6
-    end
     compute.vm.provision "shell", inline: <<-SHELL
       set -eux
       apt-get update

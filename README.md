@@ -15,6 +15,68 @@ runs the compute worker plus the Kubernetes-based monitoring stack.
 | `controller` | `192.168.56.11` | Salt master/minion, Slurm controller, SlurmDBD, MariaDB, Munge, node-exporter |
 | `compute` | `192.168.56.12` | Salt minion, Slurm worker, K3s, Helm, Prometheus, Grafana, metrics gateway, demo cron job |
 
+## Deployment Graph
+
+```mermaid
+flowchart LR
+    host["Host machine"]
+    builder["builder VM<br/>192.168.56.10"]
+    controller["controller VM<br/>192.168.56.11"]
+    compute["compute VM<br/>192.168.56.12"]
+
+    subgraph artifacts["Shared artifacts"]
+        debs["Slurm DEB packages"]
+        image["metrics-gateway image tarball"]
+    end
+
+    subgraph control["Controller services"]
+        saltmaster["Salt master"]
+        slurmctld["Slurm controller"]
+        slurmdbd["SlurmDBD"]
+        mariadb["MariaDB accounting DB"]
+        controllerExporter["node-exporter"]
+    end
+
+    subgraph worker["Compute services"]
+        saltminion["Salt minion"]
+        slurmd["Slurm worker"]
+        cron["demo Slurm metrics cron job"]
+        k3s["K3s"]
+        helm["Helm"]
+        gateway["metrics-gateway"]
+        prometheus["Prometheus"]
+        grafana["Grafana"]
+    end
+
+    host --> builder
+    host --> controller
+    host --> compute
+    builder --> debs
+    builder --> image
+    debs --> controller
+    debs --> compute
+    image --> k3s
+
+    controller --> saltmaster
+    saltmaster --> saltminion
+    saltmaster --> control
+    saltminion --> worker
+
+    slurmctld <--> slurmd
+    slurmctld --> slurmdbd
+    slurmdbd --> mariadb
+    cron --> slurmd
+    cron --> gateway
+
+    helm --> k3s
+    k3s --> gateway
+    k3s --> prometheus
+    k3s --> grafana
+    prometheus --> gateway
+    prometheus --> controllerExporter
+    grafana --> prometheus
+```
+
 ## Repository Layout
 
 ```text

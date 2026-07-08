@@ -50,6 +50,23 @@ prometheus_values:
                 static_configs:
                   - targets: ['metrics-gateway.default.svc.cluster.local:8080']
 
+deploy_metrics_gateway:
+  cmd.run:
+    - name: helm upgrade --install metrics-gateway /opt/metrics-gateway-chart --namespace default
+    - env:
+      - KUBECONFIG: /etc/rancher/k3s/k3s.yaml
+    - require:
+      - cmd: install_k3s
+      - cmd: helm_install
+      - cmd: load_gateway_image
+      - file: copy_gateway_chart
+
+wait_metrics_gateway_rollout:
+  cmd.run:
+    - name: kubectl rollout status deployment/metrics-gateway -n default --timeout=240s
+    - require:
+      - cmd: load_gateway_image
+
 install_kube_prometheus_stack:
   cmd.run:
     - name: |
@@ -65,13 +82,4 @@ install_kube_prometheus_stack:
       - cmd: helm_install
       - cmd: deploy_metrics_gateway
 
-deploy_metrics_gateway:
-  cmd.run:
-    - name: helm upgrade --install metrics-gateway /opt/metrics-gateway-chart --namespace default
-    - env:
-      - KUBECONFIG: /etc/rancher/k3s/k3s.yaml
-    - require:
-      - cmd: install_k3s
-      - cmd: helm_install
-      - cmd: load_gateway_image
-      - file: copy_gateway_chart
+
